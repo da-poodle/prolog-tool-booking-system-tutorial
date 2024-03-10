@@ -1,10 +1,8 @@
-Up: [Tool Library Contents](/content/tool_library)<br />
-
-### Part 1: Proof of Concept
+# Part 1: Proof of Concept
 
 Before starting a largish application, it's a good idea to quickly create a mockup and to nail down the basic design. The tool library app is pretty simple, and there are only a few requirements that need to be considered, and a model that is simple but allows for changes later would be ideal.
 
-The first thing to consider is the data, eventually these will be moved to a persistant storage area, but for the purposes of the mockup `dynamic/1` will be used to create changable predicates to store data in the Prolog database.
+The first thing to consider is the data, eventually these will be moved to a persistent storage area, but for the purposes of the mockup `dynamic/1` will be used to create changeable predicates to store data in the Prolog database.
 
 There are a data structures required, the first is the a tool, which I'm going to add an identifier, a type, make, and model as attributes so that a specific tool can be identified easily. Then to cater for the 'borrowing' of tools, we need to know if a tool is in the borrowed state or if it is available. If a tool is borrowed, then who borrowed it and probably when it was borrowed should also be recorded.
 
@@ -39,7 +37,7 @@ This will insert both the `tool/4` and the `tool_available/1`. The next thing to
 
 To help with this, a wrapper for the `tool/4` predicate is created so that a tool can be selected with all attributes as a single item. `aggregate/3` is handy to get the highest ToolId and then to get a unique id, just add 1. The only syntax that might be a bit confusing here is the `T^tool(TId, T)` part. This will get the `aggregate/3` call to ignore the tool structure. Another way to do this is to create a predicate that just gets the ToolId, but the `tool/2` is useful for other predicates.
 
-Now the last thing to do is to add the api methods that furfil the requirements. These are all fairly self expanatory.
+Now the last thing to do is to add the api methods that fulfil the requirements. These are all fairly self explanatory.
 
 > Users of the system must be able to view a list of all available tools
 
@@ -120,6 +118,4 @@ Nope, excellent, let's return the tool then and it should come back.
     ?- api_borrowed_tool(T).
     false.
 
-Ok, all working, there are obviously more intense testing that needs to be done, but that's an excersise for the reader.
-
-Next: [Adding Persistent Data](/content/tool_library/persistency)
+Ok, all working, there are obviously more intense testing that needs to be done, but that's an exercise for the reader.

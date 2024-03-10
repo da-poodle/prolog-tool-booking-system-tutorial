@@ -1,7 +1,6 @@
-Up: [Tool Library Contents](/content/tool_library)<br />
-Previous: [Book Tool](/content/tool_library/book_tool)
+# Part 6: Returning tools UI
 
-In the last post, the ability to add a tool via the web was implemented, and that leaves one more function to implement, which is to return a tool that is already booked. 
+In the last post, the ability to add a tool via the web was implemented, and that leaves one more function to implement, which is to return a tool that is already booked.
 
 Here is a summary of the files that will change:
 
@@ -16,14 +15,14 @@ Here is a summary of the files that will change:
 - web_index.pl (modify)
 - web_server.pl
 
-The main changes are in the ``web_index.pl`` file and the ``web_return_tool.pl`` file, but some minor refactoring will be done to keep the source a bit cleaner. It is always a good idea to clean up code as you progress through a project as common functions become apparent. 
+The main changes are in the `web_index.pl` file and the `web_return_tool.pl` file, but some minor refactoring will be done to keep the source a bit cleaner. It is always a good idea to clean up code as you progress through a project as common functions become apparent.
 
-Firstly, the ``web_index.pl`` does not currently show tools that have been booked, and so we can't create a link to return the tool. To show the booked tools, a change to the query to get tools is required. 
+Firstly, the `web_index.pl` does not currently show tools that have been booked, and so we can't create a link to return the tool. To show the booked tools, a change to the query to get tools is required.
 
     ...
 
-    % Adding a disjunction in the findall query, will return both 
-    % available (not booked) and borrowed (booked) tools. 
+    % Adding a disjunction in the findall query, will return both
+    % available (not booked) and borrowed (booked) tools.
     findall(Tool, (
         api_available_tool(Tool)
         ; api_borrowed_tool(Tool)
@@ -32,30 +31,30 @@ Firstly, the ``web_index.pl`` does not currently show tools that have been booke
     % The query will order the tools by available first, then borrowed so sorting is required.
     sort(1, <, Tools, SortedTools),
 
-    ... 
+    ...
 
-The ``sort/4`` predicate allows sorting by an argument of a term. This is required here because the terms that come back from ``api_available_tool/1`` and ``api_borrowed_tool/3`` are different, so they would normally be grouped by the sort. If instead the sort uses the first term, then both values are ``tool/4`` terms, so the sort will use the next value which is the ID. That is what will be used to sort here. 
+The `sort/4` predicate allows sorting by an argument of a term. This is required here because the terms that come back from `api_available_tool/1` and `api_borrowed_tool/3` are different, so they would normally be grouped by the sort. If instead the sort uses the first term, then both values are `tool/4` terms, so the sort will use the next value which is the ID. That is what will be used to sort here.
 
-Now that all the values are coming back in the query, they still won't be displayed, because at the moment, only ``available_tool/1`` terms are handled in the generation of table rows, in fact the program will fail at this point. 
+Now that all the values are coming back in the query, they still won't be displayed, because at the moment, only `available_tool/1` terms are handled in the generation of table rows, in fact the program will fail at this point.
 
 There are several changes required here, these are outlined in the comments
 
     % Refactor the existing tool_row/3 rule so that it generates the action column
-    % then creates the table row. This allows one predicate to generate the table row. 
+    % then creates the table row. This allows one predicate to generate the table row.
     tool_row(User, available_tool(Tool), Row) :-
         Tool = tool(ToolId, _, _, _),
         available_action_column(User, ToolId, ActionCol),
         tool_table_row(Tool, ActionCol, Row).
 
-    % Add a new tool_row/3 rule to cater for borrowed_tool/3 terms. 
-    % there is a new booked_action_column/3 predicate as well to create 
-    % the return link. 
+    % Add a new tool_row/3 rule to cater for borrowed_tool/3 terms.
+    % there is a new booked_action_column/3 predicate as well to create
+    % the return link.
     tool_row(User, borrowed_tool(Tool, _, _), Row) :-
         Tool = tool(ToolId, _, _, _),
         booked_action_column(User, ToolId, ActionCol),
         tool_table_row(Tool, ActionCol, Row).
 
-    % A new general predicate to generate tool rows, with a context based action column. 
+    % A new general predicate to generate tool rows, with a context based action column.
     tool_table_row(tool(Id, Type, Make, Model), ActionCol, Row) :-
         Row = tr([
             td(Id),
@@ -66,8 +65,8 @@ There are several changes required here, these are outlined in the comments
         ]).
 
     % no changes to the available tool actions
-    available_action_column(User, ToolId, span(class=btn, Btn)) :- 
-        user_role(User, book) 
+    available_action_column(User, ToolId, span(class=btn, Btn)) :-
+        user_role(User, book)
         -> (
             http_link_to_id(book_tool, [tool_id(ToolId)], HREF),
             Btn = a(href=HREF, 'Book')
@@ -75,10 +74,10 @@ There are several changes required here, these are outlined in the comments
         ;
         Btn = 'Available'.
 
-    % The new booked action requires a 'return' role, and will print 'Booked' 
+    % The new booked action requires a 'return' role, and will print 'Booked'
     % for those that don't have permissions to return tools.
-    booked_action_column(User, ToolId, span(class=btn, Btn)) :- 
-        user_role(User, return) 
+    booked_action_column(User, ToolId, span(class=btn, Btn)) :-
+        user_role(User, return)
         -> (
             http_link_to_id(return_tool, [tool_id(ToolId)], HREF),
             Btn = a(href=HREF, 'Return')
@@ -86,19 +85,19 @@ There are several changes required here, these are outlined in the comments
         ;
         Btn = 'Booked'.
 
-Phew, that is a lot of changes, but they aren't complicated. The page can be shown now with a link (the link doesn't work yet!). 
+Phew, that is a lot of changes, but they aren't complicated. The page can be shown now with a link (the link doesn't work yet!).
 
 For users that don't have permission they see booked tools.
 
-![Return tool, read only user](/images/tool_library_return_tool_read_only.PNG)
+![Return tool, read only user](images/tool_library_return_tool_read_only.PNG)
 
 For users that can return tools, a link appears
 
-![Return tool, user has return permission](/images/tool_library_return_tool_show_link.PNG)
+![Return tool, user has return permission](images/tool_library_return_tool_show_link.PNG)
 
-Next the handler for returning tools is required, the layout of this is similar to the book tool handler, and there is an ``http_handler`` to show the tool that needs to be returned, and another ``http_handler`` to actually return the tool, and redirect back to the home page. 
+Next the handler for returning tools is required, the layout of this is similar to the book tool handler, and there is an `http_handler` to show the tool that needs to be returned, and another `http_handler` to actually return the tool, and redirect back to the home page.
 
-First, module definition and module includes. 
+First, module definition and module includes.
 
     :- module(web_return_tool, []).
 
@@ -109,7 +108,7 @@ First, module definition and module includes.
     :- use_module(api_user).
     :- use_module(web_components).
 
-Then define the first handler, which is the ``return_tool`` handler.
+Then define the first handler, which is the `return_tool` handler.
 
     :- http_handler(root(return_tool), return_tool, [id(return_tool)]).
     return_tool(Request) :-
@@ -122,11 +121,11 @@ Then define the first handler, which is the ``return_tool`` handler.
         http_parameters(Request, [tool_id(ToolId, [integer, optional(false)])]),
 
         % Some information about the tool that is borrowed is required
-        % the existing api_borrowed_tool predicate can be adapted to get this info. 
+        % the existing api_borrowed_tool predicate can be adapted to get this info.
         Tool = tool(ToolId, _, _, _),
         api_borrowed_tool(borrowed_tool(Tool, Who, When)),
 
-        % Create a link to the handler that actually returns the tool 
+        % Create a link to the handler that actually returns the tool
         http_link_to_id(tool_is_returned, [tool_id(ToolId)], ToolIsReturnedLink),
 
         % Create a fancy formatted string to show who borrowed the tool, and when.
@@ -140,10 +139,10 @@ Then define the first handler, which is the ``return_tool`` handler.
         reply_html_page(
             title('Tool Library - Book Tool'), [
                 \page_heading('Book Tool', User),
-                \tool_description(Tool), 
+                \tool_description(Tool),
                 p(BookingDesc),
                 div([
-                    a(href=ToolIsReturnedLink, 'Return'), 
+                    a(href=ToolIsReturnedLink, 'Return'),
                     p(a(href=location_by_id(home), 'Cancel'))
                 ])
             ]
@@ -151,7 +150,7 @@ Then define the first handler, which is the ``return_tool`` handler.
 
 The page gives an option to cancel the booking, which returns to the home page to show the list again.
 
-There is a subtle change required to get the user details for the user that borrowed the tool, because the name of the user is actually stored in the password file. A new predicate is created to get the user_details for the return handler. 
+There is a subtle change required to get the user details for the user that borrowed the tool, because the name of the user is actually stored in the password file. A new predicate is created to get the user_details for the return handler.
 
     % Get the user details for a user name
     % the users predicate from the api_user module
@@ -160,7 +159,7 @@ There is a subtle change required to get the user details for the user that borr
         user_username(User, UserName),
         member(User, Users).
 
-And in the ``api_user.pl`` file, a new api is added. 
+And in the `api_user.pl` file, a new api is added.
 
     :- use_module(library(http/http_authenticate)).
 
@@ -169,7 +168,7 @@ And in the ``api_user.pl`` file, a new api is added.
         http_read_passwd_file('users.txt', Data),
         maplist(pwd_file_user, Data, Users).
 
-Which leads to a minor refactor in the ``web_book_tool.pl`` file when generating the list of users:
+Which leads to a minor refactor in the `web_book_tool.pl` file when generating the list of users:
 
     % Instead of reading the password file, use the common method in the api_user module
     user_choice_list(ToolId, div(class=userlist, UserList)) :-
@@ -188,16 +187,14 @@ Now that that is out of the way, it is time to implement the link to actually re
         api_return_tool(ToolId),
         http_redirect(see_other, location_by_id(home), Request).
 
-That is all the required changes, now when clicking a 'return' link, the page is shown. 
+That is all the required changes, now when clicking a 'return' link, the page is shown.
 
-![Return tool, return summary page](/images/tool_library_return_tool_summary_page.PNG)
+![Return tool, return summary page](images/tool_library_return_tool_summary_page.PNG)
 
 Clicking on the Return link will change the state back to available.
 
-![Return tool, tool is now returned](/images/tool_library_return_tool_returned.PNG)
+![Return tool, tool is now returned](images/tool_library_return_tool_returned.PNG)
 
-That is all the functionality is was in the list of requirements done! 
+That is all the functionality is was in the list of requirements done!
 
-Right now the site is very basic and there is no styling, so the final task is to make it look presentable before releasing to wild. 
-
-Next [Cleanup and add Styling](/content/tool_library/styling)
+Right now the site is very basic and there is no styling, so the final task is to make it look presentable before releasing to wild.

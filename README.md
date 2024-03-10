@@ -12,11 +12,11 @@ Now I have rewritten the site in Prolog as a very simple, but functional system.
 That is pretty much it, but this is a larger project than the other posts I have done so it is split into several progressive sections.
 
 - [Proof Of Concept](1_poc/poc.md)
-- [Adding Persistent Data](docs/3_persistancy.md)
-- [Creating the first web page](docs/4_first_web_page.md)
-- [Adding security](docs/5_security.md)
-- [Implement booking of a tool](docs/6_book_tool.md)
-- [Implement returning of a tool](docs/7_return_tool.md)
-- [Cleanup and add Styling](docs/8_styling.md)
+- [Adding Persistent Data](2_persistancy/persistancy.md)
+- [Creating the first web page](3_first_web_page/first_web_page.md)
+- [Adding security](4_security/security.md)
+- [Implement booking of a tool](5_book_tool/book_tool.md)
+- [Implement returning of a tool](6_return_tool/return_tool.md)
+- [Cleanup and add Styling](7_styling/styling.md)
 
 Finally, there is a simple, but operational website with all the requirements implemented. If you want to run the source, then you will need SWI-Prolog, as some of the libraries used are specific to that implementation. Other Prolog systems have web libraries but they are different, although the concept will be similar I expect.
