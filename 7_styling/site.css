@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200&display=swap');
+
+:root {
+    --font-family: 'Plus Jakarta Sans', sans-serif; 
+    --heading-background: #503D42;
+    --heading-text-color: #F5FBEF;
+    --highlight-color: #dbb3b1ff;
+    --link-color: #6c534eff;
+    --text-color: #2c1a1dff;
+}
+
+body, html, table, p {
+    padding: 0;
+    margin: 0;
+    color: var(--text-color);
+    font-size: 1.1rem;
+    font-family: var(--font-family);
+}
+
+.heading {
+    display: flex;
+    background-color: var(--heading-background);
+    align-items: center;
+    height: 2rem;
+    padding: 1rem;
+}
+
+.heading a, .heading a:visited {
+    font-size: 1.7rem;
+    flex: 2;
+    line-height: 2rem;
+    color: var(--heading-text-color);
+    text-decoration: none;
+}
+
+.welcome-msg {
+    flex: 1;
+    color: var(--heading-text-color);
+    text-align: right;
+}
+
+
+.main {
+    padding: 1rem;
+}
+
+table {
+    border: 1px solid black;
+    border-spacing: 0;
+    width: 100%;
+    margin: auto;
+}
+
+thead {
+    line-height: 1rem;
+    background-color: var(--highlight-color);
+}
+
+th {
+    color: var(--link-color);
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--highlight-color);
+}
+
+td {
+    color: var(--text-color);
+    padding: 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--highlight-color);
+}
+
+td .btn {
+    float: right;
+}
+
+.noperm {
+    color: var(--heading-text-color);
+}
+
+.btn {
+    display: table-cell;
+    padding: 0.3rem;
+    min-width: 130px;
+    border-radius: 5px;
+    border: 1px solid var(--highlight-color);
+    background-color: var(--highlight-color);
+    line-height: 2rem;
+    text-align: center;
+    font-weight: 700;
+}
+
+.btns {
+    margin-top: 1rem;
+}
+
+a, a:visited {
+    color: var(--link-color);
+    text-decoration: none;
+}
+
+.userlist div {
+    padding: 0.2rem;
+}
+
+.userlist a {
+    width: 170px;
+}
+
+.tool {
+    margin-bottom: 1rem;
+    padding: 0rem 0rem 1rem 1rem;
+    border: 1px solid var(--highlight-color);
+    border-radius: 5px;
+}
