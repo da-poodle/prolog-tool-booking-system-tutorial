@@ -4,4 +4,4 @@
 
 :- api_tool_library:attach_tool_db.
 
-:- start_server(5022).
+:- start_server(5000).

@@ -6,6 +6,7 @@ The first thing to consider is the data, eventually these will be moved to a per
 
 There are a data structures required, the first is the a tool, which I'm going to add an identifier, a type, make, and model as attributes so that a specific tool can be identified easily. Then to cater for the 'borrowing' of tools, we need to know if a tool is in the borrowed state or if it is available. If a tool is borrowed, then who borrowed it and probably when it was borrowed should also be recorded.
 
+```prolog
     % tool(ToolId, Type, Make, Model).
     :- dynamic(tool/4).
 
@@ -14,6 +15,7 @@ There are a data structures required, the first is the a tool, which I'm going t
 
     % tool_borrowed(ToolId, Who, When).
     :- dynamic(tool_borrowed/3).
+```
 
 Ok, so there are some base predicates that can be used to store data, and at the moment they will only exist in memory, which will work for the POC (proof of concept).
 
