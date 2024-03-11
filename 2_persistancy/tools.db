@@ -1,0 +1,7 @@
+created(1600904873.3848188).
+assert(tool(1,hammer,'Maxwell','7" heavy')).
+assert(tool_available(1)).
+assert(tool(2,spade,'Shovels\'r\'us','Wide blade, dirt machine')).
+assert(tool_available(2)).
+assert(tool(3,drill,'Markita','Hammer Drill no.4')).
+assert(tool_available(3)).
