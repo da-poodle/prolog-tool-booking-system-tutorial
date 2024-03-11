@@ -18,6 +18,7 @@ Firstly it might be worth looking at the web components, and then refactor the `
 
 The first component is the page header, and in this post there will be two components created in total. The file headers for the `web_components.pl` file looks like the following.
 
+```prolog
     :- module(web_components, [
         page_heading/4,
         tool_description/3
@@ -25,9 +26,11 @@ The first component is the page header, and in this post there will be two compo
 
     :- use_module(library(http/html_write)).
     :- use_module(api_user).
+```
 
 Now add in a header component, this is a DCG that we can call directly from the `http_reply` predicate.
 
+```prolog
     page_heading(Title, User) -->
         {
             user_name(User, UserName),
@@ -40,11 +43,13 @@ Now add in a header component, this is a DCG that we can call directly from the 
                 p(class='welcome-msg', WelcomeMsg)
             ])
         ).
+```
 
 The parts of the DCG between the curly brackets is normal Prolog code that will get the username to print the welcome message. Then the `html/3` DCG call will format the terms for the heading into a html format that can be printed.
 
 Now add this into the `web_index.pl` handler.
 
+```prolog
     % return the html page
     reply_html_page(
         title('Tool Library'),
@@ -53,11 +58,13 @@ Now add this into the `web_index.pl` handler.
             \page_heading('Book Tool', User),
             div(Table)
         ])).
+```
 
 Note that we can call the page heading using the `\page_heading...` which allows us to call a DCG inside another DCG term effectively.
 
 There is another component that is required, this will be used on the booking page, and the return tool page. Again this is very simple, and just prints some details of a tool so that the person knows which tool was selected.
 
+```prolog
     tool_description(tool(ToolId, Type, Make, Model)) -->
         html(
             div(class=tool, [
@@ -65,9 +72,11 @@ There is another component that is required, this will be used on the booking pa
                 p([Type, ', ', Make, ', ', Model])
             ])
         ).
+```
 
 Next job is to create the handlers for booking a tool, and then linking these back into the tool table. The comments explain what is included here.
 
+```prolog
     :- http_handler(root(book_tool), book_tool, [id(book_tool)]).
     book_tool(Request) :-
 
@@ -91,9 +100,11 @@ Next job is to create the handlers for booking a tool, and then linking these ba
             \tool_description(Tool),
             div([p('Choose who is booking the tool'), UserList])
         ]).
+```
 
 When booking a tool, a list of users needs to be shown so that the librarian can choose which person is going to be booking the tool.
 
+```prolog
     user_choice_list(ToolId, div(class=userlist, UserList)) :-
 
         % read all the users from the password file into a list
@@ -118,15 +129,19 @@ When booking a tool, a list of users needs to be shown so that the librarian can
 
         % create the user row, which the link.
         UserListRow = div(a([class=btn, href=HREF], Name)).
+```
 
 the `pwd_file_user/2` predicate in the above code is a new helper in the `api_user.pl` file to map users from the password file.
 
+```prolog
     % convert the entry in a password file to a user data structure
     pwd_file_user(passwd(UserName, _, Fields), User) :-
         userfile_user([UserName|Fields], User).
+```
 
 When a user is selected from the `book_tool` http handler, this links to a different handler called the `user_books_tool` handler, which does the actual booking.
 
+```prolog
     :- http_handler(root(user_books_tool), user_books_tool, [id(user_books_tool)]).
     user_books_tool(Request) :-
 
@@ -145,9 +160,11 @@ When a user is selected from the `book_tool` http handler, this links to a diffe
 
         % redirect back to the tool table
         http_redirect(see_other, location_by_id(home), Request).
+```
 
 Ok, the last thing to do is to show a link on the tool table for tool librarians so that they can book tools. To do this, a few modifications need to be made to the `web_index.pl` file. I've only included a summary of the changes here, the full code is in the source download.
 
+```prolog
         ...
 
         % pass the user when generating the tool table
@@ -195,6 +212,7 @@ Ok, the last thing to do is to show a link on the tool table for tool librarians
         )
         ;
         Btn = 'Available'.
+```
 
 That is all the changes, the screen is a bit more complicated now, this is what the tools table looks like for someone that cannot book tools:
 

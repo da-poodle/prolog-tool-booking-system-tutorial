@@ -13,6 +13,7 @@ To create a basic web server is a pretty simple process, it is good to separate 
 
 > Contents of file: web_server.pl
 
+```prolog
     :- module(web_server, [start_server/1]).
 
     :- use_module(library(http/thread_httpd)).
@@ -21,11 +22,13 @@ To create a basic web server is a pretty simple process, it is good to separate 
     % create the web server
     start_server(Port) :-
         http_server(http_dispatch, [port(Port)]).
+```
 
 There is one predicate, which is to start the server on a specified port. If you load this file and call `start_server(5000)` then a web server will be created on port 5000, but it doesn't do anything useful yet because we have no http handlers.
 
 Before creating a handler, let's create the code to output all the available tools in a html table. This code lives in the `web_index.pl` file.
 
+```prolog
     % Create the table, including header
     tools_table_([], 'No Tools To Show').
     tools_table_(TableBody, Table) :-
@@ -39,9 +42,11 @@ Before creating a handler, let's create the code to output all the available too
             ]),
             tbody(TableBody)
         ]).
+```
 
 A table is specified as a set of terms, this will translate to HTML by using the phrase/2 predicate, which we will see in a moment.
 
+```prolog
     % Generate a row
     tool_row(available_tool(tool(Id, Type, Make, Model)), Row) :-
         Row = tr([
@@ -50,16 +55,20 @@ A table is specified as a set of terms, this will translate to HTML by using the
             td(Make),
             td(Model)
         ]).
+```
 
 Each table row is simply a term as well, with `tr/1` and inside a list of `td/1` terms. Note that the `available_tool/1` structure is passed in to this predicate to get the data about our tool.
 
+```prolog
     % Map the available tools to the table
     tools_table(Tools, Table) :-
         maplist(tool_row, Tools, TBody),
         tools_table_(TBody, Table).
+```
 
 The last thing to do here is to map the list of tools into a list of table rows, and pass that to the predicate that creates the table. To test this works, run the following.
 
+```prolog
     swipl .\web_index.pl
     ?- use_module(api_tool_library).
     true
@@ -70,15 +79,17 @@ The last thing to do here is to map the list of tools into a list of table rows,
     ?- findall(Tool, api_available_tool(Tool), Tools), tools_table(Tools, Table).
     Tools = [available_tool(tool(1, hammer, 'Maxwell', '7" heavy')), available_tool(tool(2, spade, 'Shovels\'r\'us', 'Wide blade, dirt machine')), available_tool(tool(3, drill, 'Markita', 'Hammer Drill no.4')), available_tool(tool(4, screwdriver, phillips, '3mm phillips head'))],
     Table = table([thead([th('Tool Id'), th('Tool Name'), th('Manufacturer'), th('Model')]), tbody([tr([td(1), td(hammer), td(...)|...]), tr([td(2), td(...)|...]), tr([td(...)|...]), tr([...|...])])]).
+```
 
 The output is not that useful, and we kind of want to see what the HTML will look like so run the following:
 
+```prolog
     ?- use_module(library(http/html_write)).
     ?- phrase(html($Table), HTML, []), print_html(HTML).
 
     <table cellpadding="3">
     <thead><th>Tool Id</th><th>Tool Name</th><th>Manufacturer</th><th>Model</th></thead><tbody>
-    <tr><td>1</td><td>hammer</td><td>Maxwell</td><td>7" heavy</td></tr>
+    <tr><td>1</td><td>hammer</td><td>Maxwell</td><td>7inch heavy</td></tr>
     <tr><td>2</td><td>spade</td><td>Shovels'r'us</td><td>Wide blade, dirt machine</td></tr>
     <tr><td>3</td><td>drill</td><td>Markita</td><td>Hammer Drill no.4</td></tr>
     <tr><td>4</td><td>screwdriver</td><td>phillips</td><td>3mm phillips head</td></tr>
@@ -87,19 +98,23 @@ The output is not that useful, and we kind of want to see what the HTML will loo
 
     HTML = [nl(2), <, table, ' ', cellpadding, '="', 3, '"', >|...],
     Table = table(cellpadding=3, [thead([th('Tool Id'), th('Tool Name'), th('Manufacturer'), th('Model')]), tbody([tr([td(1), td(hammer), td(...)|...]), tr([td(2), td(...)|...]), tr([td(...)|...]), tr([...|...])])]).
+```
 
 Looks like it is working! Note that you can use a value from a previous query by putting the '$' in front of the name in the CLI. Also to print out the html, I included the `http/html_write` library, which gives access to the `print_html/1` predicate.
 
 The next thing to do is add the http handler.
 
+```prolog
     :- module(web_index, []).
 
     :- use_module(library(http/http_dispatch)).
     :- use_module(library(http/html_write)).
     :- use_module(api_tool_library).
+```
 
 Create a module and add the imports we need. The `http/http_dispatch` library is for the `http_handler/3` predicate, and the `http/html_write` library is for the `reply_html_page/1` predicate.
 
+```prolog
     :- http_handler(root(.), index, [id(home)]).
     index(_Request) :-
         % find all the tools to display
@@ -115,6 +130,7 @@ Create a module and add the imports we need. The `http/http_dispatch` library is
                 h2('Available Tools'),
                 div(Table)
             ])).
+```
 
 The handler is defined at 'root(.)', this is the URI that will trigger this handler. In this case root(.) means that the page shown when no path is specified. the `id(home)` is an option to the http handler, it is optional, but if we include an id then it is easier to link to the page later, so as common practice I tend to include it.
 
@@ -126,13 +142,15 @@ The handler code is done, but it won't work just yet because we need to load the
 
 > Contents of file: load.pl
 
+```prolog
     :- use_module(api_tool_library).
     :- use_module(web_index).
     :- use_module(web_server).
 
     :- api_tool_library:attach_tool_db.
 
-    :- start_server(5022).
+    :- start_server(5000).
+```
 
 ok, so now when we run `swipl load.pl` it will print out that a server is started and opening a browser to http://localhost:5022 shows the following page:
 

@@ -18,7 +18,9 @@ Here is a summary of the files that will change:
 
 To add the CSS file, the web server needs to be told that the file exists and it is allowed to serve it. The `site.css` file will be located in the same directory as everything else, and this is ok because a directive can be added to allow only that file to be served. This is put in the `webserver.pl` file.
 
+```prolog
     :- http_handler(root('site.css'), http_reply_file('site.css', []), []).
+```
 
 This directive says that if someone asks for '/site.css' then it is located in the current path, and it can be served. This is the same as a normal `http_handler`, but returns a file instead of prolog content.
 
@@ -26,6 +28,7 @@ The file can be read by the browser now, but it is isn't included in the page. T
 
 The first thing to do is create a predicate in the `web_components.pl` file to allow for a consistent layout on each page.
 
+```prolog
     reply_with_layout(Title, User, Body) :-
         reply_html_page([
                 title('Tool Library'),
@@ -36,6 +39,7 @@ The first thing to do is create a predicate in the `web_components.pl` file to a
                 \page_heading(Title, User),
                 div(class=main, Body)
             ]).
+```
 
 The layout contains the title, a viewport instruction (so that the browser knows how to size the page), a link to the stylesheet, the page heading, and a place to put the main content of the page.
 
@@ -43,15 +47,18 @@ Now that this is created, we can update each page to use the template.
 
 The main page that draws the tool table:
 
+```prolog
     ...
 
     % Add the tool table as the body of the page
     reply_with_layout('Available Tools', User, div(Table)).
 
     ...
+```
 
 The tool booking page:
 
+```prolog
     ...
 
     % Add the tool description and the list of users as the body
@@ -61,9 +68,11 @@ The tool booking page:
     ]).
 
     ...
+```
 
 And finally, the return tool page:
 
+```prolog
     ...
 
     % This page has the tool description, the booking description
@@ -75,6 +84,7 @@ And finally, the return tool page:
     ]).
 
     ...
+```
 
 That is the main changes! There are a few minor changes, like adding styles to elements, but there are too many and they are not Prolog, but rather HTML changes in Prolog, so I am going to skip them.
 
@@ -82,25 +92,29 @@ Instead it is worth talking a bit about CSS. I am not an expert on CSS, but feel
 
 I also choose the 'Plus Jakarta Sans' font from Google Fonts, to make the content a bit easier to read. It is good practice to use CSS variables to abstract the colors away from the rest of the styles, so the top of the stylesheet does this:
 
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200&display=swap');
+```css
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200&display=swap");
 
-    :root {
-        --font-family: 'Plus Jakarta Sans', sans-serif;
-        --heading-background: #503D42;
-        --heading-text-color: #F5FBEF;
-        --highlight-color: #dbb3b1ff;
-        --link-color: #6c534eff;
-        --text-color: #2c1a1dff;
-    }
+:root {
+  --font-family: "Plus Jakarta Sans", sans-serif;
+  --heading-background: #503d42;
+  --heading-text-color: #f5fbef;
+  --highlight-color: #dbb3b1ff;
+  --link-color: #6c534eff;
+  --text-color: #2c1a1dff;
+}
+```
 
 If you haven't used CSS variables before, it is worth learning, they allow quick color updates, as long as the names you use for the variable are relevant and consistent. To use a variable in a style, then the following syntax is used:
 
-    td {
-        color: var(--text-color);
-        padding: 0.5rem;
-        text-align: left;
-        border-bottom: 1px solid var(--highlight-color);
-    }
+```css
+td {
+  color: var(--text-color);
+  padding: 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid var(--highlight-color);
+}
+```
 
 So a table cell will use the `--text-color` from the variable for the font color, and the `--hightlight-color` for the border color.
 

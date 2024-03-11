@@ -19,6 +19,7 @@ The main changes are in the `web_index.pl` file and the `web_return_tool.pl` fil
 
 Firstly, the `web_index.pl` does not currently show tools that have been booked, and so we can't create a link to return the tool. To show the booked tools, a change to the query to get tools is required.
 
+```prolog
     ...
 
     % Adding a disjunction in the findall query, will return both
@@ -32,6 +33,7 @@ Firstly, the `web_index.pl` does not currently show tools that have been booked,
     sort(1, <, Tools, SortedTools),
 
     ...
+```
 
 The `sort/4` predicate allows sorting by an argument of a term. This is required here because the terms that come back from `api_available_tool/1` and `api_borrowed_tool/3` are different, so they would normally be grouped by the sort. If instead the sort uses the first term, then both values are `tool/4` terms, so the sort will use the next value which is the ID. That is what will be used to sort here.
 
@@ -39,6 +41,7 @@ Now that all the values are coming back in the query, they still won't be displa
 
 There are several changes required here, these are outlined in the comments
 
+```prolog
     % Refactor the existing tool_row/3 rule so that it generates the action column
     % then creates the table row. This allows one predicate to generate the table row.
     tool_row(User, available_tool(Tool), Row) :-
@@ -84,6 +87,7 @@ There are several changes required here, these are outlined in the comments
         )
         ;
         Btn = 'Booked'.
+```
 
 Phew, that is a lot of changes, but they aren't complicated. The page can be shown now with a link (the link doesn't work yet!).
 
@@ -99,6 +103,7 @@ Next the handler for returning tools is required, the layout of this is similar 
 
 First, module definition and module includes.
 
+```prolog
     :- module(web_return_tool, []).
 
     :- use_module(library(http/http_parameters)).
@@ -107,9 +112,11 @@ First, module definition and module includes.
     :- use_module(api_tool_library).
     :- use_module(api_user).
     :- use_module(web_components).
+```
 
 Then define the first handler, which is the `return_tool` handler.
 
+```prolog
     :- http_handler(root(return_tool), return_tool, [id(return_tool)]).
     return_tool(Request) :-
 
@@ -147,36 +154,44 @@ Then define the first handler, which is the `return_tool` handler.
                 ])
             ]
         ).
+```
 
 The page gives an option to cancel the booking, which returns to the home page to show the list again.
 
 There is a subtle change required to get the user details for the user that borrowed the tool, because the name of the user is actually stored in the password file. A new predicate is created to get the user_details for the return handler.
 
+```prolog
     % Get the user details for a user name
     % the users predicate from the api_user module
     user_details(UserName, User) :-
         users(Users),
         user_username(User, UserName),
         member(User, Users).
+```
 
 And in the `api_user.pl` file, a new api is added.
 
+```prolog
     :- use_module(library(http/http_authenticate)).
 
     users(Users) :-
         % load the users from the password file, this could be cached but ok for demo
         http_read_passwd_file('users.txt', Data),
         maplist(pwd_file_user, Data, Users).
+```
 
 Which leads to a minor refactor in the `web_book_tool.pl` file when generating the list of users:
 
+```prolog
     % Instead of reading the password file, use the common method in the api_user module
     user_choice_list(ToolId, div(class=userlist, UserList)) :-
         users(Users),
         maplist(user_list_row(ToolId), Users, UserList).
+```
 
 Now that that is out of the way, it is time to implement the link to actually return a tool. This handler is similar to the book tool version, but simpler because there is only one parameter (the tool_id).
 
+```prolog
     :- http_handler(root(tool_is_returned), tool_is_returned, [id(tool_is_returned)]).
     tool_is_returned(Request) :-
         request_user(Request, User),
@@ -186,6 +201,7 @@ Now that that is out of the way, it is time to implement the link to actually re
 
         api_return_tool(ToolId),
         http_redirect(see_other, location_by_id(home), Request).
+```
 
 That is all the required changes, now when clicking a 'return' link, the page is shown.
 

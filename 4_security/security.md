@@ -24,22 +24,27 @@ All of the users have randomly generated names from [this site](https://www.behi
 
 To generate the password, the `crypt/2` predicate is used.
 
+```prolog
     ?- crypt(csheridan, Cypher), atom_codes(Password, Cypher).
     Cypher = [83, 72, 104, 65, 105, 51, 114, 86, 100|...],
     Password = 'SHhAi3rVd5wMY'.
+```
 
 The password can be anything, remember the username is used here just for testing! The `crypt/2` predicate takes the plain text, and creates a hash of the text which is stored as the password. The hash is different each time `crypt/2` is run, but when comparing any of the hashes can be compared to the plain text.
 
+```prolog
     ?- crypt(csheridan, 'SHhAi3rVd5wMY').
     true.
 
     ?- crypt(a_wrong_password, 'SHhAi3rVd5wMY').
     false.
+```
 
 Now that users have been created, a check needs to be put into the website to make sure that the user is checked for when a page is loaded. The easiest way I have found to do this is to create a new router that intercepts the request before it is dispatched, and then use http_dispatch manually if the logon succeeds.
 
 This requires some modifications to the `web_server.pl` file.
 
+```prolog
     ...
     :- use_module(api_user).
 
@@ -58,6 +63,7 @@ This requires some modifications to the `web_server.pl` file.
         ;
         throw(http_reply(authorise(basic, tool_library)))
     ).
+```
 
 Firstly, a new module `api_user` will be included which is defined below, and also the `http_server/2` predicate will call our custom dispatch predicate instead of calling `http_dispatch` directly.
 
@@ -69,6 +75,7 @@ If the authentication fails, either due to no credentials being sent on the requ
 
 The user data structure has been abstracted into a new module `api_user.pl` with several helper methods that will be used. It looks like the following:
 
+```prolog
     :- module(api_user, [
         userfile_user/2,
         request_user/2,
@@ -106,11 +113,13 @@ The user data structure has been abstracted into a new module `api_user.pl` with
     % holds if user has role
     user_role(user(_,_,_,RoleList), Role) :-
         memberchk(Role, RoleList).
+```
 
 I won't go into the contents of the file in detail, except to say that this method of abstracting an data type into a new module is useful because it means that you don't have to expose the structure of the type to the rest of the code. Then if the `user/4` type requires a new field to be added or there is another change, only the `api_user.pl` file needs to change.
 
 Finally, we need to update the home page to check that only users with the view role can see the list of tools, and to print a welcome message. All of the changes are in the http handler method.
 
+```prolog
     ...
 
     :- use_module(api_user).
@@ -139,9 +148,11 @@ Finally, we need to update the home page to check that only users with the view 
             ])).
 
         ...
+```
 
 As an aside, you can add attributes to any HTML element by using the first argument. If there are multiple attributes, then a list is used, but a single element doesn't require a list. eg:
 
+```prolog
     % one attribute requires no list
     % one part to the body requires no list.
     p(class=c1, 'some text').
@@ -152,6 +163,7 @@ As an aside, you can add attributes to any HTML element by using the first argum
     p([class=c1, title="hover me to see"], [b('bold'), ' text']).
 
     % result = <p class="C1" title="hover me to see"><b>bold</b> text</p>
+```
 
 With these changes complete, now when you log in there is a nice welcome message to tell you who is logged in.
 
